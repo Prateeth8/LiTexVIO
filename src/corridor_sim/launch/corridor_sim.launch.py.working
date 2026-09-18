@@ -1,0 +1,94 @@
+import os
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import ExecuteProcess
+from launch_ros.actions import Node
+import xacro
+
+
+def generate_launch_description():
+    pkg_dir = get_package_share_directory('corridor_sim')
+    world_path = os.path.join(pkg_dir, 'worlds', 'corridor.sdf')
+    xacro_file = os.path.join(pkg_dir, 'urdf', 'robot.urdf.xacro')
+
+    robot_desc = xacro.process_file(xacro_file).toxml()
+
+    #gz_env = os.environ.copy()
+    #gz_env['LIBGL_ALWAYS_SOFTWARE'] = '1'
+
+    # ---------------------------------------------------------
+    # Gazebo
+    # ---------------------------------------------------------
+    gz_sim = ExecuteProcess(
+    cmd=['ign', 'gazebo', '-r', world_path],
+    output='screen'
+)
+
+    # ---------------------------------------------------------
+    # Spawn robot
+    # ---------------------------------------------------------
+    spawn_robot = Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=[
+            '-string', robot_desc,
+            '-name', 'diff_bot',
+            '-x', '1.0',
+            '-y', '0.0',
+            '-z', '0.1'
+        ],
+        output='screen'
+    )
+
+    # ---------------------------------------------------------
+    # Robot State Publisher
+    # ---------------------------------------------------------
+    robot_state_pub = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        parameters=[
+            {
+                'robot_description': robot_desc,
+                'use_sim_time': True
+            }
+        ],
+        output='screen'
+    )
+
+    # ---------------------------------------------------------
+    # ROS-Gazebo Bridge
+    # ---------------------------------------------------------
+    bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        parameters=[
+            {
+                'config_file': os.path.join(
+                    pkg_dir,
+                    'config',
+                    'bridge.yaml'
+                )
+            }
+        ],
+        output='screen'
+    )
+
+    # ---------------------------------------------------------
+    # Dynamic wall
+    # ---------------------------------------------------------
+    wall_shifter = Node(
+        package='corridor_sim',
+        executable='wall_shifter',
+        output='screen'
+    )
+
+    # ---------------------------------------------------------
+    # Launch everything
+    # ---------------------------------------------------------
+    return LaunchDescription([
+        gz_sim,
+        spawn_robot,
+        robot_state_pub,
+        bridge,
+        wall_shifter
+    ])

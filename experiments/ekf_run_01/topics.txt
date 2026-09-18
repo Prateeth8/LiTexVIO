@@ -1,0 +1,15 @@
+/clock
+/cmd_vel
+/fused_pose
+/imu/data
+/imu/noisy
+/joint_states
+/model/shifting_wall/joint_cmd
+/odom
+/odom_noisy
+/parameter_events
+/points
+/robot_description
+/rosout
+/tf
+/tf_static

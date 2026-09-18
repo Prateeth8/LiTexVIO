@@ -1,0 +1,103 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="degenerate_corridor">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="ignition-gazebo-physics-system" name="ignition::gazebo::systems::Physics"/>
+    <plugin filename="ignition-gazebo-user-commands-system" name="ignition::gazebo::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system" name="ignition::gazebo::systems::SceneBroadcaster"/>
+    <!-- CPU Sensor System -->
+    <plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors">
+    </plugin>
+
+    <light type="directional" name="sun">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- Ground Plane -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>50 50</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>50 50</size></plane></geometry>
+          <material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.5 0.5 0.5 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Left Wall (Static, 20m) -->
+    <model name="left_wall">
+      <static>true</static>
+      <pose>10.0 1.1 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>20.0 0.2 2.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>20.0 0.2 2.5</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Right Wall Part 1 (0 to 8m) -->
+    <model name="right_wall_p1">
+      <static>true</static>
+      <pose>4.0 -1.1 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>8.0 0.2 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>8.0 0.2 2.5</size></box></geometry>
+        <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Shifting Wall Segment (8m to 12m, shifts across Y axis) -->
+    <model name="shifting_wall">
+      <static>false</static>
+      <pose>10.0 -1.1 1.25 0 0 0</pose>
+      <link name="shifting_link">
+        <inertial>
+          <mass>50.0</mass>
+          <inertia><ixx>10</ixx><ixy>0</ixy><ixz>0</ixz><iyy>10</iyy><iyz>0</iyz><izz>10</izz></inertia>
+        </inertial>
+        <collision name="col"><geometry><box><size>4.0 0.2 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>4.0 0.2 2.5</size></box></geometry>
+        <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material></visual>
+      </link>
+      <joint name="prismatic_y_joint" type="prismatic">
+        <parent>world</parent>
+        <child>shifting_link</child>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit><lower>-2.0</lower><upper>2.0</upper><effort>10000</effort></limit>
+        </axis>
+      </joint>
+      <plugin filename="ignition-gazebo-joint-position-controller-system" name="ignition::gazebo::systems::JointPositionController">
+        <joint_name>prismatic_y_joint</joint_name>
+        <topic>/model/shifting_wall/joint_cmd</topic>
+        <p_gain>10000</p_gain>
+        <i_gain>100</i_gain>
+        <d_gain>1000</d_gain>
+      </plugin>
+    </model>
+
+    <!-- Right Wall Part 2 (12 to 20m) -->
+    <model name="right_wall_p2">
+      <static>true</static>
+      <pose>16.0 -1.1 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>8.0 0.2 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>8.0 0.2 2.5</size></box></geometry>
+        <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material></visual>
+      </link>
+    </model>
+  </world>
+</sdf>

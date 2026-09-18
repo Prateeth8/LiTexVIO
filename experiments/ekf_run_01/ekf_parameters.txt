@@ -1,0 +1,8 @@
+=== sigma_v ===
+Double value is: 0.02
+=== sigma_g ===
+Double value is: 0.01
+=== sigma_b ===
+Double value is: 0.001
+=== degeneracy_threshold ===
+Double value is: 0.001

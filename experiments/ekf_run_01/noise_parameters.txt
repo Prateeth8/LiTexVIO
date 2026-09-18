@@ -1,0 +1,12 @@
+=== sigma_v ===
+Double value is: 0.02
+=== sigma_g ===
+Double value is: 0.01
+=== sigma_b ===
+Double value is: 0.001
+=== slip_scale ===
+Double value is: 0.7
+=== slip_x_min ===
+Double value is: 10.0
+=== slip_x_max ===
+Double value is: 15.0
